@@ -8,7 +8,6 @@ import java.time.Instant
 import java.util.UUID
 
 import com.daml.api.util.TimestampConversion
-import com.daml.bazeltools.BazelRunfiles.rlocation
 import com.daml.ledger.api.domain.LedgerId
 import com.daml.ledger.api.testing.utils.{
   IsStatusException,
@@ -88,7 +87,7 @@ abstract class ResetServiceITBase
   protected implicit val ec: ExecutionContext = ExecutionContext.global
 
   override protected def darFile: File =
-    new File(rlocation("ledger/test-common/model-tests.dar"))
+    com.daml.ledger.test_common.Dars.paths("model").toFile
 
   protected def timeIsStatic: Boolean =
     config.timeProviderType.getOrElse(

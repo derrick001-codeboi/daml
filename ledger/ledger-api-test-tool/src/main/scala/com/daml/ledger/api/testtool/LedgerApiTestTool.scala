@@ -117,7 +117,7 @@ object LedgerApiTestTool {
     }
 
     if (config.extract) {
-      extractResources(Dars.resources)
+      extractResources(com.daml.ledger.test_common.Dars.fileNames.values.toList)
       sys.exit(0)
     }
 

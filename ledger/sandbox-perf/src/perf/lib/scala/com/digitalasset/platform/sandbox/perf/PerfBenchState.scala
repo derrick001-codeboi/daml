@@ -7,7 +7,6 @@ import java.io.File
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.daml.bazeltools.BazelRunfiles.rlocation
 import com.daml.grpc.adapter.ExecutionSequencerFactory
 import com.daml.ledger.api.testing.utils.Resource
 import com.daml.ledger.resources.ResourceContext
@@ -19,7 +18,7 @@ import scala.concurrent.duration._
 @State(Scope.Benchmark)
 abstract class PerfBenchState extends InfiniteRetries {
 
-  def darFile: File = new File(rlocation("ledger/test-common/model-tests.dar"))
+  def darFile: File = com.daml.ledger.test_common.Dars.paths("model").toFile
 
   private var akkaState: AkkaState = _
   private var server: Resource[LedgerContext] = _

@@ -3,13 +3,11 @@
 
 package com.daml.platform.store.dao
 
-import java.io.File
 import java.time.{Duration, Instant}
 import java.util.UUID
 import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
 
 import akka.stream.scaladsl.Sink
-import com.daml.bazeltools.BazelRunfiles.rlocation
 import com.daml.daml_lf_dev.DamlLf
 import com.daml.ledger.participant.state.index.v2
 import com.daml.ledger.participant.state.v1
@@ -52,11 +50,11 @@ private[dao] trait JdbcLedgerDaoSuite extends JdbcLedgerDaoBackend {
     def toLong: Long = BigInt(offset.toByteArray).toLong
   }
 
-  private val reader = DarReader { (_, stream) =>
-    Try(DamlLf.Archive.parseFrom(stream))
+  private val Success(dar) = {
+    val reader = DarReader { (_, stream) => Try(DamlLf.Archive.parseFrom(stream)) }
+    reader.readArchiveFromFile(com.daml.ledger.test_common.Dars.paths("model").toFile)
   }
-  private val Success(dar) =
-    reader.readArchiveFromFile(new File(rlocation("ledger/test-common/model-tests.dar")))
+
   private val now = Instant.now()
 
   protected final val packages: List[(DamlLf.Archive, v2.PackageDetails)] =

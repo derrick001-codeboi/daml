@@ -3,9 +3,6 @@
 
 package com.daml.ledger.participant.state.kvutils
 
-import java.io.File
-
-import com.daml.bazeltools.BazelRunfiles
 import com.daml.daml_lf_dev.DamlLf
 import com.daml.ledger.participant.state.kvutils.DamlKvutils.{
   DamlLogEntry,
@@ -18,18 +15,15 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import scala.util.Try
 
-class KVUtilsPackageSpec extends AnyWordSpec with Matchers with BazelRunfiles {
+class KVUtilsPackageSpec extends AnyWordSpec with Matchers {
 
   import KVTest._
   import TestHelpers._
 
-  private val darReader = DarReader[DamlLf.Archive] { case (_, is) =>
-    Try(DamlLf.Archive.parseFrom(is))
+  private[this] val scala.util.Success(testStablePackages) = {
+    val reader = DarReader { (_, stream) => Try(DamlLf.Archive.parseFrom(stream)) }
+    reader.readArchiveFromFile(com.daml.ledger.test_common.Dars.paths("model").toFile)
   }
-
-  private def darFile = new File(rlocation("ledger/test-common/model-tests.dar"))
-
-  private val testStablePackages = darReader.readArchiveFromFile(darFile).get
 
   private val simplePackage = new SimplePackage("Party")
   private val simpleArchive = simplePackage.archive

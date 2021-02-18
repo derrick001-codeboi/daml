@@ -791,7 +791,7 @@ sh_test(
     ],
     data = [
         "//compiler/damlc",
-        "//ledger/test-common:model-tests.dar",
+        "//ledger/test-common:model-tests-stable.dar",
         "@jq_dev_env//:jq",
     ],
     toolchains = [

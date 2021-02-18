@@ -3,14 +3,12 @@
 
 package com.daml.ledger.participant.state.kvutils
 
-import java.io.File
 import java.time.{Clock, Duration}
 import java.util.UUID
 
 import akka.Done
 import akka.stream.scaladsl.Sink
 import com.codahale.metrics.MetricRegistry
-import com.daml.bazeltools.BazelRunfiles.rlocation
 import com.daml.daml_lf_dev.DamlLf
 import com.daml.ledger.api.testing.utils.AkkaBeforeAndAfterAll
 import com.daml.ledger.participant.state.kvutils.OffsetBuilder.{fromLong => toOffset}
@@ -55,10 +53,10 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(i
 
   private var rt: Timestamp = _
 
-  // This can be overriden by tests for ledgers that don't start at 0.
+  // This can be overridden by tests for ledgers that don't start at 0.
   protected val startIndex: Long = 0
 
-  // This can be overriden by tests for in-memory or otherwise ephemeral ledgers.
+  // This can be overridden by tests for in-memory or otherwise ephemeral ledgers.
   protected val isPersistent: Boolean = true
 
   protected def participantStateFactory(
@@ -713,11 +711,10 @@ object ParticipantStateIntegrationSpecBase {
   private val participantId: ParticipantId = Ref.ParticipantId.assertFromString("test-participant")
   private val sourceDescription = Some("provided by test")
 
-  private val darReader = DarReader[DamlLf.Archive] { case (_, is) =>
-    Try(DamlLf.Archive.parseFrom(is))
+  private val archives = {
+    val reader = DarReader { (_, stream) => Try(DamlLf.Archive.parseFrom(stream)) }
+    reader.readArchiveFromFile(com.daml.ledger.test_common.Dars.paths("model").toFile).get.all
   }
-  private val darFile = new File(rlocation("ledger/test-common/model-tests.dar"))
-  private val archives = darReader.readArchiveFromFile(darFile).get.all
 
   // 2 self consistent archives
   protected val List(anArchive, anotherArchive) =

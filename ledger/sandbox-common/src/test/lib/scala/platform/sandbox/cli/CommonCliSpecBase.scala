@@ -5,10 +5,9 @@ package com.daml.platform.sandbox.cli
 
 import java.io.File
 import java.net.InetSocketAddress
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 import java.time.Duration
 
-import com.daml.bazeltools.BazelRunfiles.rlocation
 import com.daml.ledger.api.tls.TlsConfiguration
 import com.daml.ledger.participant.state.v1
 import com.daml.platform.configuration.MetricsReporter
@@ -49,8 +48,8 @@ abstract class CommonCliSpecBase(
     }
 
     "return a Config with sensible defaults when mandatory arguments are given" in {
-      val expectedConfig = defaultConfig.copy(damlPackages = List(new File(archive)))
-      val config = cli.parse(requiredArgs ++ Array(archive))
+      val expectedConfig = defaultConfig.copy(damlPackages = List(archive.toFile))
+      val config = cli.parse(requiredArgs ++ Array(archive.toString))
       config shouldEqual Some(expectedConfig)
     }
 
@@ -241,15 +240,17 @@ abstract class CommonCliSpecBase(
       args: Array[String],
       expectedChange: SandboxConfig => SandboxConfig,
   ): Assertion = {
-    val expectedConfig = expectedChange(defaultConfig.copy(damlPackages = List(new File(archive))))
-    val config = cli.parse(requiredArgs ++ args ++ Array(archive))
+    val expectedConfig = expectedChange(defaultConfig.copy(damlPackages = List(archive.toFile)))
+    val config = cli.parse(requiredArgs ++ args ++ Array(archive.toString))
     config shouldEqual Some(expectedConfig)
   }
 }
 
 object CommonCliSpecBase {
 
-  private val archive = rlocation("ledger/test-common/model-tests.dar")
+  private val archive: Path =
+    com.daml.ledger.test_common.Dars.paths("model")
+
   private val nonExistentArchive = "whatever.dar"
   private val invalidArchive = {
     val tempFile = Files.createTempFile("invalid-archive", ".dar.tmp")

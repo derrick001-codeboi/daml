@@ -3,12 +3,10 @@
 
 package com.daml.platform.sandbox.stores.ledger.sql
 
-import java.nio.file.Paths
 import java.time.Instant
 
 import ch.qos.logback.classic.Level
 import com.daml.api.util.TimeProvider
-import com.daml.bazeltools.BazelRunfiles.rlocation
 import com.daml.daml_lf_dev.DamlLf
 import com.daml.ledger.api.domain.{LedgerId, ParticipantId}
 import com.daml.ledger.api.health.Healthy
@@ -318,7 +316,8 @@ object SqlLedgerSpec {
 
   private val ledgerId: LedgerId = LedgerId(Ref.LedgerString.assertFromString("TheLedger"))
 
-  private val testArchivePath = rlocation(Paths.get("ledger/test-common/model-tests.dar"))
+  private val testArchivePath = com.daml.ledger.test_common.Dars.paths("model")
+
   private val darReader = DarReader { (_, stream) =>
     Try(DamlLf.Archive.parseFrom(stream))
   }

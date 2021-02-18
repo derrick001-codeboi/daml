@@ -16,6 +16,7 @@ import com.daml.ledger.api.testtool.infrastructure.participant.{
   ParticipantSession,
   ParticipantTestContext,
 }
+import com.google.protobuf.ByteString
 import io.grpc.{Channel, ClientInterceptor}
 import org.slf4j.LoggerFactory
 
@@ -123,14 +124,18 @@ final class LedgerTestCasesRunner(
   ): Future[Either[Result.Failure, Result.Success]] =
     result(start(test, session))
 
-  private def uploadDar(context: ParticipantTestContext, name: String)(implicit
+  private def uploadDar(context: ParticipantTestContext, item: (String, ByteString))(implicit
       executionContext: ExecutionContext
   ): Future[Unit] = {
+    val (name, content) = item
     logger.info(s"""Uploading DAR "$name"...""")
-    context.uploadDarFile(Dars.read(name)).andThen { case _ =>
+    context.uploadDarFile(content).andThen { case _ =>
       logger.info(s"""Uploaded DAR "$name".""")
     }
   }
+
+  private[this] val resources: Map[String, ByteString] =
+    com.daml.ledger.test_common.Dars.resources.mapValues(ByteString.readFrom(_))
 
   private def uploadDarsIfRequired(
       sessions: Vector[ParticipantSession]
@@ -140,7 +145,7 @@ final class LedgerTestCasesRunner(
         .sequence(sessions.map { session =>
           for {
             context <- session.createInitContext("upload-dars", identifierSuffix)
-            _ <- Future.sequence(Dars.resources.map(uploadDar(context, _)))
+            _ <- Future.sequence(resources.map(uploadDar(context, _)))
           } yield ()
         })
         .map(_ => ())

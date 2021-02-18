@@ -37,7 +37,7 @@ da_scala_test(
     resources = [
         "src/test/resources/logback-test.xml",
         "//ledger/ledger-api-test-tool:PackageManagementTest.dar",
-        "//ledger/test-common:dar-files",
+        "//ledger/test-common:dar-files-stable",
     ],
     scala_deps = [
         "@maven//:org_tpolecat_doobie_core",
